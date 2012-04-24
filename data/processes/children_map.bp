@@ -1,0 +1,120 @@
+@main[][locals]
+
+# $hConfig[^json:parse[{$parseBlock_data}]]
+# $hConfig[^hConfig.union[$hDefault]]
+
+$hConfig[^parseConfigData[$parseBlock_data;
+	$.alphabetical(0)
+]]
+
+$bWhiteList(false)
+^if(def $hConfig.[white-list]){
+	$bWhiteList(true)
+	$tWhiteList[^hConfig.[white-list].split[,]]
+	$hWhiteList[^hash::create[]]
+	^tWhiteList.menu{
+		$hWhiteList.[^tWhiteList.piece.trim[]](true)
+	}
+}
+
+$sLangUrl[$MAIN:sLangUrl]
+$tObject[^self.getObjectsByThread[$currentObject.thread_id;]]
+$hId[^hash::create[$.[$currentObject.id](true)]]
+$tObject[^self.filterSubthread[$tObject;$hId]]
+$hObject[^tObject.hash[parent_id][$.distinct[tables]]]
+$sBasePath[^currentObject.full_path.left(^currentObject.full_path.length[]-^currentObject.path.length[]-1)]
+$sBasePath[^sBasePath.trim[both;/]]
+
+$tLead[^oSql.table{
+	select
+		object_id,
+		data
+	from
+		block_to_object join block using(block_id)
+		join lang_to_block using(block_id)
+	where
+		object_id in (0,^hId.foreach[k;]{$k}[,]) and
+		lang_id=$MAIN:iLangId and
+		is_published=1 and
+		is_parsed_manual=0 and
+		name='lead'
+}]
+
+$hParam[
+	$.hLead[^tLead.hash[object_id][$.distinct(1)]]
+	$.bWhiteList($bWhiteList)
+	$.hWhiteList[$hWhiteList]
+]
+
+<structural>
+	^untaint[as-is]{^self.goHashTree[$hObject;$currentObject.parent_id;$isShowOnSiteMap;$sBasePath;item;;$printServiceItem;$hParam]}
+</structural>
+
+^if($hConfig.alphabetical){
+#	$tObject[^tObject.select($tObject.object_type_id==86 && (!$bWhiteList || def $hWhiteList.[$tObject.id]))]
+	$tObject[^tObject.select($tObject.object_type_id==86)]
+	^tObject.sort{$tObject.name}
+	<alphabetical>
+	^untaint[as-is]{
+		^tObject.menu{
+			<item object-id="$tObject.id" type="service" href="${sLangUrl}$tObject.full_path" path="$tObject.path">
+				<name>$tObject.name</name>
+				^if(def $hLead.[$tObject.id].data){
+					<lead>$hLead.[$tObject.id].data</lead>
+				}
+			</item>
+		}
+	}
+	</alphabetical>
+}
+
+
+@filterSubthread[tObject;hId][iCount]
+
+	$iCount(^hId._count[])
+	^tObject.menu{
+		^if(!$hId.[$tObject.id]){
+			^if($hId.[$tObject.parent_id]){
+				$hId.[$tObject.id](true)
+			}
+		}
+	}
+	^if(^hId._count[]>$iCount){
+		^self.filterSubthread[$tObject;$hId]
+	}{
+#		output
+		^tObject.select(def $hId.[$tObject.id])
+	}
+
+
+	
+@printServiceItem[hItem;sParentURL;sTagName;sBody;hParam][sURL;bPrint]
+
+	$sURL[^self.getObjectURL[$hItem;$sParentURL]]
+	$result[
+		<$sTagName
+			object-id="$hItem.id"
+			^self.printObjectTypeAttr[$hItem]
+			^if(def $sURL){href="^taint[xml][^sURL.replace[$tUnAmp]]"}
+			^if($currentBranchObject.id == $hItem.id){
+				selected="^if(^self.isBranchCurrent[]){current}{parent}"
+			}{
+				^if(def $oCurrentAncestor && ^oCurrentAncestor.contain[$hItem.id]){
+					selected="parent"
+				}
+			}
+			^if($hItem.link_to_object_id){
+				link-id="$hItem.link_to_object_id"
+			}
+			path="$hItem.path"
+			^if( $hItem.object_type_id==86 && $hParam.bWhiteList && !def $hParam.hWhiteList.[$hItem.id] ){
+				blacklisted="true"
+			}
+		>
+			<name>$hItem.name</name>
+			^if(def $hParam.hLead.[$hItem.id].data){
+				<lead>$hParam.hLead.[$hItem.id].data</lead>
+			}
+			$sBody
+		</$sTagName>
+	]
