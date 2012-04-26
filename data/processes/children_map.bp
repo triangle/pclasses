@@ -54,7 +54,7 @@ $hParam[
 ]
 
 <structural>
-	^untaint[as-is]{^self.goHashTree[$hObject;$currentObject.parent_id;$isShowOnSiteMap;$sBasePath;item;;$printServiceItem;$hParam]}
+	^untaint[as-is]{^self.goHashTree[$hObject;$currentObject.parent_id;$isShowObject;$sBasePath;item;;$printServiceItem;$hParam]}
 </structural>
 
 ^if($hConfig.alphabetical){
@@ -129,6 +129,16 @@ $hParam[
 			$sBody
 		</$sTagName>
 	]
+
+
+
+# Метод для определения, выводить объект или нет. С учетом опубликованности, флага вывода на карту и mode=preview
+@isShowObject[hObject]
+^if($bPreview){
+	$resutl($hObject.is_show_on_site_map)
+}{
+	$result($hObject.is_published && $hObject.is_show_on_site_map)
+}
 
 	
 
