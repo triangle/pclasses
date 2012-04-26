@@ -1,11 +1,11 @@
 @main[][locals]
 
-# $hConfig[^json:parse[{$parseBlock_data}]]
-# $hConfig[^hConfig.union[$hDefault]]
-
-$hConfig[^parseConfigData[$parseBlock_data;
+$hDefaultConfig[
 	$.alphabetical(0)
-]]
+]
+
+$hConfig[^json:parse[{$parseBlock_data}]]
+$hConfig[^hConfig.union[$hDefaultConfig]]
 
 $bWhiteList(false)
 ^if(def $hConfig.[white-list]){
@@ -25,23 +25,30 @@ $hObject[^tObject.hash[parent_id][$.distinct[tables]]]
 $sBasePath[^currentObject.full_path.left(^currentObject.full_path.length[]-^currentObject.path.length[]-1)]
 $sBasePath[^sBasePath.trim[both;/]]
 
-$tLead[^oSql.table{
-	select
-		object_id,
-		data
-	from
-		block_to_object join block using(block_id)
-		join lang_to_block using(block_id)
-	where
-		object_id in (0,^hId.foreach[k;]{$k}[,]) and
-		lang_id=$MAIN:iLangId and
-		is_published=1 and
-		is_parsed_manual=0 and
-		name='lead'
-}]
+^if(def $hConfig.[block-name]){
+	$tBlock[^oSql.table{
+		select
+			object_id,
+			data,
+			name
+		from
+			block_to_object join block using(block_id)
+			join lang_to_block using(block_id)
+		where
+			object_id in (0,^hId.foreach[k;]{$k}[,]) and
+			lang_id in ($iLangID, 255) and
+			is_published=1 and
+			is_parsed_manual=0 and
+			^if($hConfig.[block-name] is hash){
+				name in (^hConfig.[block-name].foreach[;name]{'$name'}[,]) 
+			}{
+				name = '$hConfig.[block-name]'
+			}
+	}]
+}
 
 $hParam[
-	$.hLead[^tLead.hash[object_id][$.distinct(1)]]
+	$.hBlock[^if(def $hConfig.[block-name]){^tBlock.hash[object_id][ $.type[table] $.distinct(1)]}]
 	$.bWhiteList($bWhiteList)
 	$.hWhiteList[$hWhiteList]
 ]
@@ -59,8 +66,10 @@ $hParam[
 		^tObject.menu{
 			<item object-id="$tObject.id" type="service" href="${sLangUrl}$tObject.full_path" path="$tObject.path">
 				<name>$tObject.name</name>
-				^if(def $hLead.[$tObject.id].data){
-					<lead>$hLead.[$tObject.id].data</lead>
+				^if(def $hBlock.[$tObject.id]){
+					^hBlock.[$tObject.id].menu{
+						<$hBlock.[$tObject.id].name>$hBlock.[$tObject.id].data</$hBlock.[$tObject.id].name>
+					}
 				}
 			</item>
 		}
@@ -94,7 +103,7 @@ $hParam[
 	$result[
 		<$sTagName
 			object-id="$hItem.id"
-			^self.printObjectTypeAttr[$hItem]
+			type="^self.getObjectTypeABBR[$hItem]"
 			^if(def $sURL){href="^taint[xml][^sURL.replace[$tUnAmp]]"}
 			^if($currentBranchObject.id == $hItem.id){
 				selected="^if(^self.isBranchCurrent[]){current}{parent}"
@@ -112,9 +121,41 @@ $hParam[
 			}
 		>
 			<name>$hItem.name</name>
-			^if(def $hParam.hLead.[$hItem.id].data){
-				<lead>$hParam.hLead.[$hItem.id].data</lead>
+			^if(def $hParam.hBlock.[$hItem.id]){
+				^hParam.hBlock.[$hItem.id].menu{
+					<$hParam.hBlock.[$hItem.id].name>$hParam.hBlock.[$hItem.id].data</$hParam.hBlock.[$hItem.id].name>
+				}
 			}
 			$sBody
 		</$sTagName>
 	]
+
+	
+
+# Перекрытие метода из Engine
+# Рекомендуется перенести в EngineProject.p	
+@goHashTree[hTree;sParentKey;jCondition;sParentURL;sTagName;iLevel;jCustomMethod;hCustomParam][tLevel;jMethod]
+
+$result[]
+^if($hTree.$sParentKey){
+	$tLevel[^hTree.[$sParentKey].select(^jCondition[$hTree.$sParentKey])]
+	^if($tLevel){
+		^tLevel.sort($tLevel.sort_order)[asc]
+		^if(!$iLevel){
+			$iLevel(0)
+			$jMethod[$printRootItem]
+		}{
+			$jMethod[$printBranchItem]
+		}
+
+		^if($jCustomMethod is junction && $iLevel){
+			$result[^tLevel.menu{
+				^jCustomMethod[$tLevel;$sParentURL;$sTagName;^if($hTree.[$tLevel.id]){^self.goHashTree[$hTree;$tLevel.id;$jCondition;$sParentURL^if(def $tLevel.path && !^self.isFake[$tLevel]){/$tLevel.path};$sTagName]($iLevel+1)[$jCustomMethod][$hCustomParam]};$hCustomParam]
+			}]
+		}{
+			$result[^tLevel.menu{
+				^jMethod[$tLevel;$sParentURL;$sTagName;^if($hTree.[$tLevel.id]){^self.goHashTree[$hTree;$tLevel.id;$jCondition;$sParentURL^if(def $tLevel.path && !^self.isFake[$tLevel]){/$tLevel.path};$sTagName]($iLevel+1)[$jCustomMethod][$hCustomParam]}]
+			}]
+		}
+	}
+}
