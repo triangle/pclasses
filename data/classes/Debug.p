@@ -1,8 +1,10 @@
-# 
+# Based on http://code.google.com/p/dstop/
+ 
 # Modified by @chesco and @mashi
 # - debug output moved to the end of the document 
 # - added object debug possibility
-# - ^MAIN:isDeveloper[] used for IP check 
+# - ^MAIN:isDeveloper[] used for IP check
+ 
 # Modified 13/04/2012 by chesco
 # patched @show_methods[] for handling hashfile exception
 
