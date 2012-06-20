@@ -13,7 +13,7 @@ Yandex
 	$iDefaultNumpergroup(20)
 	
 	$hGetConfig[
-		$.serverUrl[http://127.0.0.1:17000/]
+		$.serverUrl[http://localhost:17000/]
 		$.numdoc($iDefaultNumdoc)	^rem{ not used if 'grouping' is true }
 		$.numpergroup($iDefaultNumpergroup) ^rem{ used if 'grouping' is true, 'numdoc' ignored }
 		$.charset[UTF-8]
