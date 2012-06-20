@@ -1,0 +1,15 @@
+@main[][hConfig;oYandex]
+
+	$sText[$form:text]
+	$sText[^sText.trim[]]
+	
+	^if(def $sText){
+		^use[Yandex.p]
+		$hConfig[^self.parseConfigData[$parseBlock_data]]
+		$hConfig.collection[${hConfig.collection}$lang.0.abbr]
+		$oYandex[^Yandex::create[$hConfig]]
+
+		$parseBlock_data
+		^taint[as-is][^oYandex.search[$sText]]
+		<base-url>^self.getPath[$currentObject.id;smart_slashes]</base-url>
+	}
