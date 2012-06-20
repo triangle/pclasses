@@ -1,4 +1,5 @@
 # Class for Yandex.Server
+# Author: chesco
 
 @CLASS
 Yandex
@@ -18,6 +19,7 @@ Yandex
 		$.charset[UTF-8]
 		$.collection[]
 		$.section[]		^rem{ comma separated ids of sections }
+		$.sections(0)	^rem{ count of sections for grouping }
 		$.segment[]		^rem{ comma separated ids of segments }
 		$.grouping[]	^rem{ if true, 'section' ignored }
 		$.user[]
@@ -25,11 +27,6 @@ Yandex
 		$.timeout(120)
 	]
 	
-	$tSiteSection[^table::create{id	alias
-1	general
-2	press
-3	other}]
-
 
 ###########################################################################
 @create[hParam]
@@ -63,7 +60,7 @@ Yandex
 			]
 			$hForm.numdoc(^self.hParam.numdoc.int($CLASS.iDefaultNumdoc))
 			^if($self.hParam.grouping){
-				$hForm.g[1.section.^CLASS.tSiteSection.count[].^self.hParam.numpergroup.int($CLASS.iDefaultNumpergroup).-1]
+				$hForm.g[1.section.^self.hParam.sections.int(0).^self.hParam.numpergroup.int($CLASS.iDefaultNumpergroup).-1]
 			}{
 				^if(def $self.tSection){
 					$hForm.text[${hForm.text} && (]
