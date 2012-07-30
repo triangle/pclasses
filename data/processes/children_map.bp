@@ -2,6 +2,9 @@
 
 $hDefaultConfig[
 	$.alphabetical(0)
+	$.thread-id[$currentObject.thread_id]
+	$.current-object-id[$currentObject.id]
+	
 ]
 
 $hConfig[^json:parse[{$parseBlock_data}]]
@@ -18,8 +21,8 @@ $bWhiteList(false)
 }
 
 $sLangUrl[$MAIN:sLangUrl]
-$tObject[^self.getObjectsByThread[$currentObject.thread_id;]]
-$hId[^hash::create[$.[$currentObject.id](true)]]
+$tObject[^self.getObjectsByThread[$hConfig.[thread-id]]]
+$hId[^hash::create[$.[$hConfig.[current-object-id]](true)]]
 $tObject[^self.filterSubthread[$tObject;$hId]]
 $hObject[^tObject.hash[parent_id][$.distinct[tables]]]
 $sBasePath[^currentObject.full_path.left(^currentObject.full_path.length[]-^currentObject.path.length[]-1)]
