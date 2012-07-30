@@ -1,0 +1,24 @@
+@main[][oReCp;sPublicKey;sSecretKey;sReCpHtml;hReCpV]
+
+^use[ReCAPTCHA.p]
+
+$oReCp[^ReCAPTCHA::create[]]
+$sPublicKey[6LcDKdQSAAAAAKfuIhx5KuClxw3IDheAgxiQC5_N]
+$sSecretKey[6LcDKdQSAAAAAByAe4tJ5uReQvczoIgsIEXf69MW]
+
+^if(def $form:doSend){
+	$hReCpV[^ReCAPTCHA:verify[$sSecretKey;$form:fields]]
+	^if($hReCpV.valid){
+		OK
+	}{
+		^dshow[$hReCpV]
+		^printForm[^ReCAPTCHA:printHTML[$sPublicKey;$hReCpV.errorcode]]
+	}
+}{
+	^printForm[^ReCAPTCHA:printHTML[$sPublicKey]]
+}
+
+
+@printForm[sReCpHtml]
+
+	^parseBlock_data.match[<recaptcha\s*/>][]{<recaptcha>$sReCpHtml</recaptcha>}
