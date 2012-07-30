@@ -60,6 +60,7 @@ $hParam[
 	^untaint[as-is]{^self.goHashTree[$hObject;$currentObject.parent_id;$isShowOnSiteMap;$sBasePath;item;;$printServiceItem;$hParam]}
 </structural>
 
+# Осторожно! Тут неопознанный костыль с типом объекита 
 ^if($hConfig.alphabetical){
 #	$tObject[^tObject.select($tObject.object_type_id==86 && (!$bWhiteList || def $hWhiteList.[$tObject.id]))]
 	$tObject[^tObject.select($tObject.object_type_id==86)]
