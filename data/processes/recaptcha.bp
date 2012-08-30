@@ -11,7 +11,6 @@ $sSecretKey[6LcDKdQSAAAAAByAe4tJ5uReQvczoIgsIEXf69MW]
 	^if($hReCpV.valid){
 		OK
 	}{
-		^dshow[$hReCpV]
 		^printForm[^ReCAPTCHA:printHTML[$sPublicKey;$hReCpV.errorcode]]
 	}
 }{
