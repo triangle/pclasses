@@ -25,7 +25,8 @@ ReCAPTCHA
 		$sError[&amp^;error=$sErrorCode]
 	}
 
-$result[<script type="text/javascript" src="${self.sChallengeURL}?k=${sPublicKey}$sError"></script>
+$result[^if(def $sErrorCode){<style>.recaptcha-label {color: red}</style>}
+<script type="text/javascript" src="${self.sChallengeURL}?k=${sPublicKey}$sError"></script>
 <noscript>
 	<iframe src="${self.sNoscriptChallengeURL}?k=${sPublicKey}$sError" height="300" width="500" frameborder="0"></iframe><br/>
 	<textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
