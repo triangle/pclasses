@@ -1,0 +1,15 @@
+@USE
+FilePackage.p
+
+
+
+@main[][locals]
+
+$oFilePackage[^FilePackage::init[
+	$.sBody[$parseBlock_data]
+	$.iPackageObjectId($parseBlock_objectId)
+	$.oEngine[$self]
+	$.oSql[$oSql]
+]]
+
+$result[^oFilePackage.print[]]
