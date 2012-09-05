@@ -14,6 +14,8 @@ $iPackageObjectId($hParams.iPackageObjectId)
 
 $bRebuildPackage(false)
 
+$sCacheDir[$MAIN:CACHE_DIR/_css]
+
 $tFile[^table::create{src	date_modified}]
 
 
@@ -23,19 +25,36 @@ $result[^oEngine.modifyXML[$sPackageBody;$_printPackage;package;package;(name)\s
 
 
 
-@_printPackage[sType;hParam;hConfig]
+@_printPackage[sType;hParam;hConfig][oPackageObject]
 $sPackageName[$hParam.oAttrs.name]
 $sPackageSrc[^oEngine.objectFile[$sPackageName;^oEngine.getObjectById($iPackageObjectId)]]
 
-^self._loadFileStats[]
+$iCacheTime($hParam.oAttrs.cache)
 
-^if(!-f $sPackageSrc){
-	$bRebuildPackage(true)
+^if(!$iCacheTime){
+	^if($iPackageObjectId == $oEngine.currentObjectId){
+		$iCacheTime(^oEngine.getCacheTime[])
+	}{
+		$oPackageObject[^oEngine.getObjectById[$iPackageObjectId]]
+		$iCacheTime(^oPackageObject.cache_time.int($MAIN:iCacheTimeDefault))
+	}
 }
 
-^oEngine.modifyXML[$hParam.sBody;$_processFileInPackage;file;file;(src)\s*=\s*"[^^"]+"]
+$sCacheKey[${iPackageObjectId}_$sPackageName]
 
-$result[^self._processPackage[$tFile;$hParam]]
+$result[^cache[$sCacheDir/$sCacheKey]($iCacheTime){
+
+	^self._loadFileStats[]
+	
+	^if(!-f $sPackageSrc){
+		$bRebuildPackage(true)
+	}
+	
+	^oEngine.modifyXML[$hParam.sBody;$_processFileInPackage;file;file;(src)\s*=\s*"[^^"]+"]
+	
+	^self._processPackage[$tFile;$hParam]
+	
+}]
 
 
 
