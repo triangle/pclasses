@@ -11,3 +11,7 @@
 
 ### childern map
 * `children_map.bp`  
+
+### [Склеивание файлов](https://github.com/triangle/pclasses/wiki/Склеивание файлов)
+* `FilePackage.p`, `file_package.bp`
+* таблица `file_package` в БД (см. [вики](https://github.com/triangle/pclasses/wiki/Склеивание файлов))
