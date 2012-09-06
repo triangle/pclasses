@@ -42,13 +42,14 @@ $iCacheTime($hParam.oAttrs.cache)
 
 $sCacheKey[${iPackageObjectId}_$sPackageName]
 
+^if(!-f $sPackageSrc){
+	$bRebuildPackage(true)
+	$iCacheTime(0)
+}
+
 $result[^cache[$sCacheDir/$sCacheKey]($iCacheTime){
 
 	^self._loadFileStats[]
-	
-	^if(!-f $sPackageSrc){
-		$bRebuildPackage(true)
-	}
 	
 	^oEngine.modifyXML[$hParam.sBody;$_processFileInPackage;file;file;(src)\s*=\s*"[^^"]+"]
 	
