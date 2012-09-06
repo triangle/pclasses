@@ -7,7 +7,7 @@ FilePackage.p
 
 $oFilePackage[^FilePackage::init[
 	$.sBody[$parseBlock_data]
-	$.iPackageObjectId($parseBlock_objectId)
+	$.iPackageObjectId(^if($parseBlock_objectId){$parseBlock_objectId}{$currentObject.id})
 	$.oEngine[$self]
 	$.oSql[$oSql]
 ]]
