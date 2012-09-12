@@ -74,6 +74,15 @@ $fFile[^file::stat[$hParam.oAttrs.src]]
 
 @_processPackage[tFile;hParam][locals]
 
+^hFileStats.foreach[sFileSrc;]{
+	^if(!^tFile.locate[src;$sFileSrc]){
+		$bRebuildPackage(true)
+		^break[]
+	}
+}
+
+^dshow[$bRebuildPackage]
+
 ^if($bRebuildPackage){
 	^tFile.menu{
 		$fFile[^file::load[text;$tFile.src]]
