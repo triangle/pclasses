@@ -6,6 +6,8 @@ FilePackage
 @init[hParams]
 $hParams[^hash::create[$hParams]]
 
+$bEnable($hParams.bEnable)
+
 $oEngine[$hParams.oEngine]
 $oSql[$self.oEngine.oSql]
 
@@ -26,36 +28,40 @@ $result[^oEngine.modifyXML[$sPackageBody;$_printPackage;package;package;(name)\s
 
 
 @_printPackage[sType;hParam;hConfig][oPackageObject]
-$sPackageName[$hParam.oAttrs.name]
-$sPackageSrc[^oEngine.objectFile[$sPackageName;^oEngine.getObjectById($iPackageObjectId)]]
-
-$iCacheTime($hParam.oAttrs.cache)
-
-^if(!$iCacheTime){
-	^if($iPackageObjectId == $oEngine.currentObjectId){
-		$iCacheTime(^oEngine.getCacheTime[])
-	}{
-		$oPackageObject[^oEngine.getObjectById[$iPackageObjectId]]
-		$iCacheTime(^oPackageObject.cache_time.int($MAIN:iCacheTimeDefault))
+^if($bEnable){
+	$sPackageName[$hParam.oAttrs.name]
+	$sPackageSrc[^oEngine.objectFile[$sPackageName;^oEngine.getObjectById($iPackageObjectId)]]
+	
+	$iCacheTime($hParam.oAttrs.cache)
+	
+	^if(!$iCacheTime){
+		^if($iPackageObjectId == $oEngine.currentObjectId){
+			$iCacheTime(^oEngine.getCacheTime[])
+		}{
+			$oPackageObject[^oEngine.getObjectById[$iPackageObjectId]]
+			$iCacheTime(^oPackageObject.cache_time.int($MAIN:iCacheTimeDefault))
+		}
 	}
+	
+	$sCacheKey[${iPackageObjectId}_$sPackageName]
+	
+	^if(!-f $sPackageSrc){
+		$bRebuildPackage(true)
+		$iCacheTime(0)
+	}
+	
+	$result[^cache[$sCacheDir/$sCacheKey]($iCacheTime){
+	
+		^self._loadFileStats[]
+		
+		^oEngine.modifyXML[$hParam.sBody;$_processFileInPackage;file;file;(src)\s*=\s*"[^^"]+"]
+		
+		^self._processPackage[$tFile;$hParam]
+		
+	}]
+}{
+	$result[$hParam.sBody]
 }
-
-$sCacheKey[${iPackageObjectId}_$sPackageName]
-
-^if(!-f $sPackageSrc){
-	$bRebuildPackage(true)
-	$iCacheTime(0)
-}
-
-$result[^cache[$sCacheDir/$sCacheKey]($iCacheTime){
-
-	^self._loadFileStats[]
-	
-	^oEngine.modifyXML[$hParam.sBody;$_processFileInPackage;file;file;(src)\s*=\s*"[^^"]+"]
-	
-	^self._processPackage[$tFile;$hParam]
-	
-}]
 
 
 
