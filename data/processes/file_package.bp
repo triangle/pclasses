@@ -6,7 +6,6 @@ FilePackage.p
 @main[][locals]
 
 $oFilePackage[^FilePackage::init[
-	$.bEnable(!^isDeveloper[])
 	$.sBody[$parseBlock_data]
 	$.iPackageObjectId(^if($parseBlock_objectId){$parseBlock_objectId}{$currentObject.id})
 	$.oEngine[$self]

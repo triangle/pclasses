@@ -6,7 +6,7 @@ FilePackage
 @init[hParams]
 $hParams[^hash::create[$hParams]]
 
-$bEnable($hParams.bEnable)
+$bEnable($hParams.bEnable || !^MAIN:isDeveloper[])
 
 $oEngine[$hParams.oEngine]
 $oSql[$self.oEngine.oSql]
