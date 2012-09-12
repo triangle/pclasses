@@ -14,7 +14,7 @@ $iPackageObjectId($hParams.iPackageObjectId)
 
 $bRebuildPackage(false)
 
-$sCacheDir[$MAIN:CACHE_DIR/_css]
+$sCacheDir[$MAIN:CACHE_DIR/_package]
 
 $tFile[^table::create{src	date_modified}]
 
