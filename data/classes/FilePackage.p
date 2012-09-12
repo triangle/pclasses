@@ -139,17 +139,19 @@ $hFileStats[^tFileStats.hash[src]]
 		AND package_name = '$sPackageName'
 }
 
-^oSql.void{
-	INSERT INTO file_package (
-		package_object_id
-		, package_name
-		, file_src
-		, file_date_modified
-	) VALUES
-	^tFile.menu{(
-		$iPackageObjectId
-		, '$sPackageName'
-		, '$tFile.src'
-		, '$tFile.date_modified'
-	)}[,]
+^if($tFile){
+	^oSql.void{
+		INSERT INTO file_package (
+			package_object_id
+			, package_name
+			, file_src
+			, file_date_modified
+		) VALUES
+		^tFile.menu{(
+			$iPackageObjectId
+			, '$sPackageName'
+			, '$tFile.src'
+			, '$tFile.date_modified'
+		)}[,]
+	}
 }
