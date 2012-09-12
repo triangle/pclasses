@@ -62,9 +62,13 @@ $result[^cache[$sCacheDir/$sCacheKey]($iCacheTime){
 @_processFileInPackage[sType;hParam;hConfig][fFile]
 $fFile[^file::stat[$hParam.oAttrs.src]]
 
-$bRebuildPackage($bRebuildPackage || !^hFileStats.contains[$hParam.oAttrs.src] || ^date::create[$hFileStats.[$hParam.oAttrs.src].date_modified] < $fFile.mdate)
-
-^tFile.append{$hParam.oAttrs.src	^fFile.mdate.sql-string[]}
+^if(!def $hParam.oAttrs.cc && !def $hParam.oAttrs.media){
+	$bRebuildPackage($bRebuildPackage || !^hFileStats.contains[$hParam.oAttrs.src] || ^date::create[$hFileStats.[$hParam.oAttrs.src].date_modified] < $fFile.mdate)
+	
+	^tFile.append{$hParam.oAttrs.src	^fFile.mdate.sql-string[]}
+}{
+	$sPackageAddon[^if(def $sPackageAddon){$sPackageAddon^#0A}$hParam.sSource]
+}
 
 
 
@@ -91,6 +95,9 @@ $bRebuildPackage($bRebuildPackage || !^hFileStats.contains[$hParam.oAttrs.src] |
 	
 	$result[^result.match[src="([^^"]+)"][]{src="$match.1?$sDateAddon"}]
 }
+
+$result[$result
+$sPackageAddon]
 
 ^if($bRebuildPackage){
 	^self._saveFileStats[]
